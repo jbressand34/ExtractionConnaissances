@@ -34,13 +34,13 @@ y_train = []
 y_test = []
 h = 10
 
-for i in range(0,243):
+for i in range(0,int(len(pixels_leves)/2)):
 	x_train.append(pixels_leves[2*i])
 	x_test.append(pixels_leves[2*i+1])
 	y_train.append(1)
 	y_test.append(1)
 
-for i in range(0,638):
+for i in range(0,int(len(pixels_non_leves)/2)):
 	x_train.append(pixels_non_leves[2*i])
 	x_test.append(pixels_non_leves[2*i+1])
 	y_train.append(0)

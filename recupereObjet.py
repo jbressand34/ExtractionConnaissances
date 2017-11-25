@@ -170,16 +170,16 @@ for key, val in objets.items():
 	date = tab[0]
 	objet = tab[1]
 	nbPixelTotal = nb_pixel_objet[key]
-	nbPixelLevees = 0
+	nbPixelsLevees = 0
 	nbPixelsNonLevees = 0
 	for parcelle, nbPixel in val.items():
 		if parcelle in levees and levees[parcelle] <= int(date):
-			nbPixelLevees += nbPixel
+			nbPixelsLevees += nbPixel
 		elif parcelle in levees :
 			nbPixelsNonLevees += nbPixel
-	if nbPixelLevees/nbPixelTotal > 1/2:
+	if nbPixelsLevees/nbPixelTotal > 1/4 and nbPixelsLevees>nbPixelsNonLevees:
 		objets_levees.append(key)
-	elif nbPixelsNonLevees/nbPixelTotal > 1/2:
+	elif nbPixelsNonLevees > 1/4 and nbPixelsNonLevees>nbPixelsLevees:
 		objets_non_levees.append(key)
 
 print("Nombre d'objets levees : "+str(len(objets_levees)))
