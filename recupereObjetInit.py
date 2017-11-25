@@ -109,16 +109,16 @@ def appartenance_parcel(liste_pixeles):
     return dico            
 
 
-#nbObj = 0
+nbObj = 0
 """
 nbRepet=0
 objs = {}
 """
-"""
+
 for date, val1 in data_objet.items():
     for objet, val2 in val1.items():
         nbObj += 1
-"""
+
 """
         if objet not in objs:
         	objs[objet] = []
@@ -135,7 +135,7 @@ for date, val1 in data_objet.items():
 """
 #print("Nombre d'objet : "+str(len(objs)))
 #print("Nombre d'objet appartenant aux 5 dates : "+str(nbRepet))
-"""
+
 avancement = -1
 compteur = 0
 debut = time.time()
@@ -154,84 +154,4 @@ print("Durée : "+str(int(time.time()-debut))+"s")
 
 file = open("../data_4_tp/objets.json", "w")
 json.dump(objets,file)
-file.close()
-"""
-file = open("../data_4_tp/objets.json")
-objets = json.load(file)
-file.close()
-
-
-
-objets_levees = []
-objets_non_levees = []
-
-for key, val in objets.items():
-	tab = key.split(" ")
-	date = tab[0]
-	objet = tab[1]
-	nbPixelTotal = nb_pixel_objet[key]
-	nbPixelLevees = 0
-	nbPixelsNonLevees = 0
-	for parcelle, nbPixel in val.items():
-		if parcelle in levees and levees[parcelle] <= int(date):
-			nbPixelLevees += nbPixel
-		elif parcelle in levees :
-			nbPixelsNonLevees += nbPixel
-	if nbPixelLevees/nbPixelTotal > 1/2:
-		objets_levees.append(key)
-	elif nbPixelsNonLevees/nbPixelTotal > 1/2:
-		objets_non_levees.append(key)
-
-print("Nombre d'objets levees : "+str(len(objets_levees)))
-print("Nombre d'objets non levees : "+str(len(objets_non_levees)))
-
-nbPixelLevees = 0
-nbPixelNonLevees = 0
-
-for obj in objets_levees:
-	nbPixelLevees+=nb_pixel_objet[obj]
-for obj in objets_non_levees:
-	nbPixelNonLevees+=nb_pixel_objet[obj]
-
-print("Nombre de pixels levees : "+str(nbPixelLevees))
-print("Nombre de pixels non levees : "+str(nbPixelNonLevees))
-
-objets_levees_dump = {}
-objets_non_levees_dump = {}
-
-for obj in objets_levees:
-	tab = key.split(" ")
-	date = tab[0]
-	matrice = []
-	for pixel in pixels_objet[obj]:
-		signaux = []
-		for numsignal in range(0,10):
-			signal = matrices[date][numsignal][pixel[0]][pixel[1]]
-			signaux.append(signal)
-		matrice.append(signaux)
-	objets_levees_dump[obj] = pd.Series(matrice).to_json(orient='values')
-
-
-for obj in objets_non_levees:
-	tab = key.split(" ")
-	date = tab[0]
-	matrice = []
-	for pixel in pixels_objet[obj]:
-		signaux = []
-		for numsignal in range(0,10):
-			signal = matrices[date][numsignal][pixel[0]][pixel[1]]
-			signaux.append(signal)
-		matrice.append(signaux)
-	objets_non_levees_dump[obj] = pd.Series(matrice).to_json(orient='values')
-
-#pd.DataFrame(objets_levees_dump).to_json('../data_4_tp/objets_leves.json')
-#pd.DataFrame(objets_non_levees_dump).to_json('../data_4_tp/objets_non_leves.json')
-
-
-#print(objets_levees_dump)
-file = open("../data_4_tp/objets_leves.json","w")
-json.dump(objets_levees_dump,file)
-file.close()
-file = open("../data_4_tp/objets_non_leves.json","w")
-json.dump(objets_non_levees_dump,file)
 file.close()
