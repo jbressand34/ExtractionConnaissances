@@ -8,11 +8,11 @@ from keras.layers import Dense, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Sequential
 
-file = open("../data_4_tp/objets_leves.json")
+file = open("../data_4_tp/objets_leves_splites.json")
 data_objets_leves = json.load(file)
 file.close()
 
-file = open("../data_4_tp/objets_non_leves.json")
+file = open("../data_4_tp/objets_non_leves_splites.json")
 data_objets_non_leves = json.load(file)
 file.close()
 
