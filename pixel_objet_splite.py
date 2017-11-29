@@ -34,6 +34,13 @@ dates = ["20160806", "20161003", "20161102", "20161122","20161202"]
 
 pixels_parcelles_leves = [] #couple (date,pixel)
 pixels_parcelles_non_leves = [] #couple (date,pixel)
+association_pixel_parcelle = {} # (pixel)->parcelle
+
+for k,t in parcelles_pixels.items():
+	for p in t:
+		if p[0] not in association_pixel_parcelle:
+			association_pixel_parcelle[p[0]] = {}
+		association_pixel_parcelle[p[0]][p[1]] = k
 
 array_pixel = np.array([p for k,t in parcelles_pixels.items() for p in t])
 l_min = np.min(array_pixel[:,0])
@@ -81,7 +88,8 @@ print(communs)
 On determine quels sont les objets leves et non leves
 On leur enleve les pixels ne correspondant pas à leur etat
 """
-support = 2/3 
+support = 2/3
+represantativite = 1/3 
 #(nbPixelLeves/(nbPixelLeves+nbPixelNonLeves)>support -> objet leve
 #(nbPixelLeves/(nbPixelLeves+nbPixelNonLeves)<(1-support) et >0 -> objet non leve
 
@@ -93,23 +101,61 @@ for date, objs in objets_pixels.items():
 		liste_pixel_leves = []
 		liste_pixel_non_leves = []
 		liste_pixel_unknown = []
+		representativite_parcelle_levee = {}
+		representativite_parcelle_non_levee = {}
 		for pixel in pixels:
 			if (date,pixel) in pixels_parcelles_leves:
 				liste_pixel_leves.append(pixel)
+				if pixel[0] in association_pixel_parcelle:
+					if pixel[1] in association_pixel_parcelle[pixel[0]]:
+						parcelle = association_pixel_parcelle[pixel[0]][pixel[1]]
+						if parcelle not in representativite_parcelle_levee:
+							representativite_parcelle_levee[parcelle] = 1
+						else :
+							representativite_parcelle_levee[parcelle] += 1
 			elif (date,pixel) in pixels_parcelles_non_leves:
 				liste_pixel_non_leves.append(pixel)
+				if pixel[0] in association_pixel_parcelle:
+					if pixel[1] in association_pixel_parcelle[pixel[0]]:
+						parcelle = association_pixel_parcelle[pixel[0]][pixel[1]]
+						if parcelle not in representativite_parcelle_non_levee:
+							representativite_parcelle_non_levee[parcelle] = 1
+						else :
+							representativite_parcelle_non_levee[parcelle] += 1
 			else:
 				liste_pixel_unknown.append(pixel)
 		nbl = len(liste_pixel_leves)
 		nbnl = len(liste_pixel_non_leves)
+
+		representativite_levee = None
+		representativite_non_levee = None
+
+		for parcelle in representativite_parcelle_levee:
+			nbPixel = len(parcelles_pixels[parcelle])
+			representativite_parcelle_levee[parcelle] /= nbPixel
+
+		for parcelle in representativite_parcelle_non_levee:
+			nbPixel = len(parcelles_pixels[parcelle])
+			representativite_parcelle_non_levee[parcelle] /= nbPixel
+
+		if len(representativite_parcelle_levee.items()) >0:
+			rep_levee = np.array(list(representativite_parcelle_levee.values()))
+			representativite_levee = np.max(rep_levee)
+
+		if len(representativite_parcelle_non_levee.items()) >0:
+			rep_non_levee = np.array(list(representativite_parcelle_non_levee.values()))
+			representativite_non_levee = np.max(rep_non_levee)
+
 		if nbl != 0 or nbnl != 0:
 			test = nbl/(nbl+nbnl)
 			if test >= support:
 				liste_pixels = liste_pixel_leves + liste_pixel_unknown
-				objets_leves[date+" "+obj] = pd.Series(liste_pixels).to_json(orient='values')
+				if representativite_levee != None and representativite_levee > represantativite:
+					objets_leves[date+" "+obj] = pd.Series(liste_pixels).to_json(orient='values')
 			elif (1-test) >= support:
 				liste_pixels = liste_pixel_non_leves + liste_pixel_unknown
-				objets_non_leves[date+" "+obj] = pd.Series(liste_pixels).to_json(orient='values')
+				if representativite_non_levee != None and representativite_non_levee > represantativite:
+					objets_non_leves[date+" "+obj] = pd.Series(liste_pixels).to_json(orient='values')
 
 print("Nombre d'objet splite leves : "+str(len(list(objets_leves.keys()))))	
 print("Nombre d'objet splite non leves : "+str(len(list(objets_non_leves.keys()))))

@@ -112,7 +112,7 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 	metrics=['accuracy'])
 
 mon_batch_size = 128
-epo=10
+epo=200
 
 model.fit(x_train, y_train,
 	batch_size=mon_batch_size,
@@ -125,3 +125,5 @@ model.fit(x_train, y_train,
 
 score = model.evaluate(x_test,y_test,verbose=0)
 print("Score exactitude : "+str(score))
+print("Nombre d'echantillons d'entrainement : "+str(len(x_train.tolist())))
+print("Nombre d'echantillons de test : "+str(len(x_test.tolist())))
