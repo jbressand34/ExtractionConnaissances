@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 
-def similarity_matrix(valeurs_levees, valeurs_non_levees, division, pl):
+def similarity_matrix(valeurs_levees, valeurs_non_levees, division):
 	nbT = len(valeurs_levees)
 	avancement = -1
 	debut = time.time()
@@ -137,14 +137,33 @@ def similarity_matrix(valeurs_levees, valeurs_non_levees, division, pl):
 	cl = [(1,0,0),(1,1,0),(0,1,1),(0,0,1)]
 	couleurs = colors.LinearSegmentedColormap.from_list("ma colormap", cl, N=10)
 
-	plt.subplot(1,2,1)
-	pl.scatter(matrice_levees[:,0],matrice_levees[:,1],c=matrice_levees[:,2],cmap=couleurs,norm=norm_levees)
+	#fig = plt.subplot(1,2,1)
+	fig = plt.figure()
+	#ax = fig.add_subplot(1,2,1)
+	plt.scatter(matrice_levees[:,0],matrice_levees[:,1],c=matrice_levees[:,2],cmap=couleurs,norm=norm_levees)
 	plt.title("Pixels levees")
+	def onclick(event):
+		numl = int(event.y)
+		numc = int(event.x)
+		valX = valeurs_levees[numc]
+		valY = valeurs_levees[numl]
+		print('valx='+ str(valX)+' valy=' + str(valY))
 
-	plt.subplot(1,2,2)
-	pl.scatter(matrice_non_levees[:,0],matrice_non_levees[:,1],c=matrice_non_levees[:,2],cmap=couleurs,norm=norm_non_levees)
+	cid = fig.canvas.mpl_connect('button_press_event', onclick)
+	#plt.subplot(1,2,2)
+	#ax = fig.add_subplot(1,2,2)
+	fig = plt.figure()
+	plt.scatter(matrice_non_levees[:,0],matrice_non_levees[:,1],c=matrice_non_levees[:,2],cmap=couleurs,norm=norm_non_levees)
 	plt.title("Pixels non levees")
+	def onclick(event):
+		numl = int(event.y)
+		numc = int(event.x)
+		valX = valeurs_non_levees[numc]
+		valY = valeurs_non_levees[numl]
+		print('valx='+ str(valX)+' valy=' + str(valY))
 
+	cid = fig.canvas.mpl_connect('button_press_event', onclick)
+	#fig.show()
 file = open("../data_4_tp/objets_splites_leves_trois_dates.json")
 data_objets_leves = json.load(file)
 file.close()
@@ -211,8 +230,9 @@ for i in range(0,30):
 	valeurs_non_levees = donnees_non_levees[i].tolist()
 	valeurs_levees.sort()
 	valeurs_non_levees.sort()
-	similarity_matrix(valeurs_levees, valeurs_non_levees,division, plt)
-	pdf.savefig()
-	plt.close()
+	similarity_matrix(valeurs_levees, valeurs_non_levees,division)
+	plt.show()
+	#pdf.savefig()
+	#plt.close()
 
 pdf.close()
