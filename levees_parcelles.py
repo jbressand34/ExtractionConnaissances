@@ -13,20 +13,20 @@ file4 = pd.read_csv("../data_4_tp/21112016_observations.csv")
 file5 = pd.read_csv("../data_4_tp/02122016_observations.csv")
 
 for id, row in file1.iterrows():
-    if("croissance" in row["Culture"] and row["ID2"] not in levees):
-        levees[row["ID2"]]= "20160806"
+    if("croissance" in row["Culture"] and row["CODE_2016_"] not in levees):
+        levees[row["CODE_2016_"]]= "20160806"
 for id, row in file2.iterrows():    
-    if("croissance" in row["Culture"] and row["ID2"] not in levees):
-        levees[row["ID2"]]="20161003"
+    if("croissance" in row["Culture"] and row["CODE_2016_"] not in levees):
+        levees[row["CODE_2016_"]]="20161003"
 for id, row in file3.iterrows():
-    if("croissance" in row["Culture"] and row["ID2"] not in levees):
-        levees[row["ID2"]]="20161102"
+    if("croissance" in row["Culture"] and row["CODE_2016_"] not in levees):
+        levees[row["CODE_2016_"]]="20161102"
 for id, row in file4.iterrows():
-    if("croissance" in row["Culture"] and row["ID2"] not in levees):
-        levees[row["ID2"]]="20161122"
+    if("croissance" in row["Culture"] and row["CODE_2016_"] not in levees):
+        levees[row["CODE_2016_"]]="20161122"
 for id, row in file5.iterrows():
-    if("croissance" in row["Culture"] and row["ID2"] not in levees):
-        levees[row["ID2"]]="20161202"
+    if("croissance" in row["Culture"] and row["CODE_2016_"] not in levees):
+        levees[row["CODE_2016_"]]="20161202"
 
 file = open("../data_4_tp/parcelles_levees.json","w")
 json.dump(levees, file, indent=1)
