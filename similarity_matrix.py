@@ -142,27 +142,32 @@ def similarity_matrix(valeurs_levees, valeurs_non_levees, division):
 	#ax = fig.add_subplot(1,2,1)
 	plt.scatter(matrice_levees[:,0],matrice_levees[:,1],c=matrice_levees[:,2],cmap=couleurs,norm=norm_levees)
 	plt.title("Pixels levees")
-	def onclick(event):
-		numl = int(event.ydata)
-		numc = int(event.xdata)
+
+	def fmt(x,y):
+		numl = int(y)
+		numc = int(x)
 		valX = valeurs_levees[numc]
 		valY = valeurs_levees[numl]
-		print('valx='+ str(valX)+' valy=' + str(valY))
+		return 'valeur x : '+str(valX)+', valeur y : '+str(valY)
 
-	cid = fig.canvas.mpl_connect('button_press_event', onclick)
+	#cid = fig.canvas.mpl_connect('button_press_event', onclick)
+	ax = fig.gca()
+	ax.format_coord = fmt
 	#plt.subplot(1,2,2)
 	#ax = fig.add_subplot(1,2,2)
 	fig = plt.figure()
 	plt.scatter(matrice_non_levees[:,0],matrice_non_levees[:,1],c=matrice_non_levees[:,2],cmap=couleurs,norm=norm_non_levees)
 	plt.title("Pixels non levees")
-	def onclick(event):
-		numl = int(event.ydata)
-		numc = int(event.xdata)
+	def fmt(x,y):
+		numl = int(y)
+		numc = int(x)
 		valX = valeurs_non_levees[numc]
 		valY = valeurs_non_levees[numl]
-		print('valx='+ str(valX)+' valy=' + str(valY))
+		return 'valeur x : '+str(valX)+', valeur y : '+str(valY)
 
-	cid = fig.canvas.mpl_connect('button_press_event', onclick)
+	#cid = fig.canvas.mpl_connect('button_press_event', onclick)
+	ax = fig.gca()
+	ax.format_coord = fmt
 	#fig.show()
 file = open("../data_4_tp/objets_splites_leves_trois_dates.json")
 data_objets_leves = json.load(file)
