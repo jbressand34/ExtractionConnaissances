@@ -16,6 +16,20 @@ def similarity_matrix(valeurs_levees, valeurs_non_levees, division):
 	compteur = 0
 	matrice_levees = [[0 for i in range(0,nbT)] for i in range(0,nbT)]
 
+	matrice_levees_min = np.array(valeurs_levees)
+	matrice_levees_min = np.min(matrice_levees_min)
+	matrice_non_levees_min = np.array(valeurs_non_levees)
+	matrice_non_levees_min = np.min(matrice_non_levees_min)
+	min_mnl = min(matrice_levees_min, matrice_non_levees_min)
+
+	matrice_levees_max = np.array(valeurs_levees)
+	matrice_levees_max = np.max(matrice_levees_max)
+	matrice_non_levees_max = np.array(valeurs_non_levees)
+	matrice_non_levees_max = np.max(matrice_non_levees_max)
+	max_mnnl = max(matrice_levees_max, matrice_non_levees_max)
+
+	print(min_mnl)
+	print(max_mnnl)
 	for i in range(0,nbT):
 		if int(100*compteur/nbT)>avancement:
 			avancement = int(100*compteur/nbT)
@@ -66,7 +80,6 @@ def similarity_matrix(valeurs_levees, valeurs_non_levees, division):
 			matrice2_levees.append([i,division,moyenne])
 			matrice2_levees.append([division,i,moyenne])
 	matrice_levees = np.array(matrice2_levees)
-
 
 	"""
 	NON LEVEES
