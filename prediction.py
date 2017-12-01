@@ -4,11 +4,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import keras
 from keras.models import model_from_json
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 json_modele = open("../data_4_tp/modele.json", "r")
 modele = model_from_json(json_modele.readline())
 json_modele.close()
+modele.load_weights('../data_4_tp/modele_poids.h5')
 
 	
 file = open("../data_4_tp/data_matrix.json","r")
@@ -21,6 +23,10 @@ file.close()
 
 file = open("../data_4_tp/parcelles_levees.json","r")
 parcelles_date = json.load(file)
+file.close()
+
+file = open("../data_4_tp/jeu_test_trois_dates.json","r")
+jeu_test = json.load(file)
 file.close()
 
 dates = ["20160806", "20161003", "20161102", "20161122","20161202"]
@@ -114,9 +120,8 @@ for date in dates[2:]:
 				for i in range(0,10):
 					sample.append([data[d][i][pixel[0]][pixel[1]]])
 			sample = np.array([[sample]])
-			pred = np.argsort(modele.predict(sample))
+			pred = modele.predict(sample)
 			prediction = 0
-			print(pred)
 			if pred[0][1]>pred[0][0]:
 				prediction = 1		
 			if prediction == 1:
@@ -130,25 +135,74 @@ for date in dates[2:]:
 		"non_levees": pixels_non_levees
 	}
 
+for date in predictions_pixels:
+	print(date+" : ")
+	print("Nombre de pixels levees : "+\
+		str(len(predictions_pixels[date]["levees"])))
+	print("Nombre de pixels non levees : "+\
+		str(len(predictions_pixels[date]["non_levees"])))
 
 
 
 #prediction = np.argsort(model.predict())
+pdf = PdfPages("../data_4_tp/prediction.pdf")
+
+prediction_rouge = {}
+prediction_vert = {}
+test_rouge = {}
+test_vert = {}
+for date in dates[2:]:
+	test_rouge[date] = []
+	test_vert[date] = []
+	prediction_rouge[date] = []
+	prediction_vert[date] = []
+
+for i in range(0, len(jeu_test['pixels'])):
+	pixel = jeu_test['pixels'][i]
+	label = jeu_test['labels'][i]
+	date = jeu_test['dates'][i]
+	canaux = jeu_test['canaux'][i]
+	if label == 1 :
+		test_vert[date].append(pixel) 
+	else:
+		test_rouge[date].append(pixel)
+
+	p = [[val] for val in canaux[0]]+\
+	[[val] for val in canaux[1]]+\
+	[[val] for val in canaux[2]]
+	pred = modele.predict(np.array([[p]]))
+	prediction = 0
+	if pred[0][1] > pred[0][0]:
+		prediction = 1
+	if prediction == 1:
+		prediction_vert[date].append(pixel)
+	else:
+		prediction_rouge[date].append(pixel)
 
 for date in dates[2:]:
-	plt.figure()
+	plt.figure()#figsize=(150,100)
 	plt.subplot(1,2,1)
 	plt.title(date + " observations")
 	plt.imshow(compute_ndvi(data["20160806"]),cmap="gray")
+	"""
 	for pixels in observations_parcelles[date]["levees"]:  
 		p = np.array(pixels)
 		plt.scatter(p[:,0],p[:,1],c='green')
 	for pixels in observations_parcelles[date]["non_levees"]:	
 		p = np.array(pixels)
 		plt.scatter(p[:,0],p[:,1],c='red')
+	"""
+	if len(test_vert[date])>0:
+		p = np.array(test_vert[date])
+		plt.scatter(p[:,0],p[:,1],c='green')
+	if len(test_rouge[date])>0:
+		p = np.array(test_rouge[date])
+		plt.scatter(p[:,0],p[:,1],c='red')
+
 	plt.subplot(1,2,2)
 	plt.title(date + " predictions")
 	plt.imshow(compute_ndvi(data["20160806"]),cmap="gray")
+	"""
 	if len(predictions_pixels[date]["levees"])>0:  
 		p = np.array(predictions_pixels[date]["levees"])
 		#print(p.shape)
@@ -157,4 +211,13 @@ for date in dates[2:]:
 		p = np.array(predictions_pixels[date]["non_levees"])
 		#print(p.shape)
 		plt.scatter(p[:,0],p[:,1],c='red')
+	"""
+	if len(prediction_vert[date])>0:
+		p = np.array(prediction_vert[date])
+		plt.scatter(p[:,0],p[:,1],c='green')
+	if len(prediction_rouge[date])>0:
+		p = np.array(prediction_rouge[date])
+		plt.scatter(p[:,0],p[:,1],c='red')
 	plt.show()
+	#pdf.savefig()
+pdf.close()

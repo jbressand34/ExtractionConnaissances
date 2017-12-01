@@ -8,53 +8,33 @@ from keras.layers import Dense, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Sequential
 
-file = open("../data_4_tp/objets_splites_leves_trois_dates.json")
-data_objets_leves = json.load(file)
+file = open("../data_4_tp/jeu_entrainement_trois_dates.json","r")
+jeu_entrainement = json.load(file)
 file.close()
 
-file = open("../data_4_tp/objets_splites_non_leves_trois_dates.json")
-data_objets_non_leves = json.load(file)
+file = open("../data_4_tp/jeu_test_trois_dates.json","r")
+jeu_test = json.load(file)
 file.close()
 
-pixels_leves = []
-for objet, val1 in data_objets_leves.items():
-	tab = json.loads(val1)
-	for i in range(0,len(tab[0])):
-		t = []
-		for j in range(0,3):
-			for signal in tab[j][i]:
-				t.append(signal)
-		pixels_leves.append(t)
 
-pixels_non_leves = []
-for objet, val1 in data_objets_non_leves.items():
-	tab = json.loads(val1)
-	for i in range(0,len(tab[0])):
-		t = []
-		for j in range(0,3):
-			for signal in tab[j][i]:
-				t.append(signal)
-		pixels_non_leves.append(t)
-
-print("Nombre de pixels leves : "+str(len(pixels_leves)))
-print("Nombre de pixels non leves : "+str(len(pixels_non_leves)))
 x_train = [] #nbPixel * 10
 x_test = []
 y_train = []
 y_test = []
 h = 30
 
-for i in range(0,int(len(pixels_leves)/2)):
-	x_train.append(pixels_leves[2*i])
-	x_test.append(pixels_leves[2*i+1])
-	y_train.append(1)
-	y_test.append(1)
+for i in range(0, len(jeu_entrainement['labels'])):
+	label = jeu_entrainement['labels'][i]
+	y_train.append(label)
+	canaux = jeu_entrainement['canaux'][i]
+	x_train.append(canaux[0] + canaux[1] + canaux[2])
 
-for i in range(0,int(len(pixels_non_leves)/2)):
-	x_train.append(pixels_non_leves[2*i])
-	x_test.append(pixels_non_leves[2*i+1])
-	y_train.append(0)
-	y_test.append(0)
+for i in range(0, len(jeu_test['labels'])):
+	label = jeu_test['labels'][i]
+	y_test.append(label)
+	canaux = jeu_test['canaux'][i]
+	x_test.append(canaux[0] + canaux[1] + canaux[2])
+	
 
 x_train = np.array(x_train)
 x_test = np.array(x_test)
@@ -101,7 +81,7 @@ model.add(MaxPooling2D(pool_size=(1,2), strides=(1,1)))
 model.add(Conv2D(64,kernel_size=(1,2), activation='relu', strides=(1,2)))
 model.add(MaxPooling2D(pool_size=(1,2), strides=(1,1)))
 model.add(Conv2D(64,kernel_size=(1,2), activation='relu', strides=(1,2)))
-model.add(MaxPooling2D(pool_size=(1,2), strides=(1,1)))
+#model.add(MaxPooling2D(pool_size=(1,2), strides=(1,1)))
 model.add(Flatten())
 model.add(Dense(1000, activation='relu'))
 model.add(Dense(2, activation='softmax'))
@@ -109,10 +89,10 @@ model.add(Dense(2, activation='softmax'))
 
 model.compile(loss=keras.losses.categorical_crossentropy,
 	optimizer=keras.optimizers.Adam(),
-	metrics=['accuracy'])
+	metrics=['accuracy'])#decay=0.001
 
 mon_batch_size = 128
-epo=200
+epo=400
 
 model.fit(x_train, y_train,
 	batch_size=mon_batch_size,
@@ -121,9 +101,46 @@ model.fit(x_train, y_train,
 	validation_data=(x_test,y_test),
 	shuffle=True)
 
-#np.argsort(model.predict(np.array([x_train[0]])))
+nbPixelsLevees = 0
+nbPixelsNonLevees = 0
 
+predictions_train = model.predict(x_train)
+predictions_test = model.predict(x_test)
+#Nombre de pixels leves : 1119 non leves : 1104
+#Prediction total : 1110 levees, 1112 non levees.
+
+for pred in predictions_train:
+	prediction = 0
+
+	if pred[1]>pred[0]:
+		prediction = 1		
+	if prediction == 1:
+		nbPixelsLevees += 1
+	elif prediction == 0:
+		nbPixelsNonLevees += 1
+for pred in predictions_test:
+	prediction = 0
+
+	if pred[1]>pred[0]:
+		prediction = 1		
+	if prediction == 1:
+		nbPixelsLevees += 1
+	elif prediction == 0:
+		nbPixelsNonLevees += 1
+
+print("Prediction total : "+str(nbPixelsLevees)+" levees, "+\
+	str(nbPixelsNonLevees)+" non levees.")
+"""		
+for i in range(0,10):
+	pr = np.argsort(model.predict(np.array([x_train[i]])))
+	print(pr)
+"""
 score = model.evaluate(x_test,y_test,verbose=0)
+model.save_weights('../data_4_tp/modele_poids.h5')
+fmodel = open("../data_4_tp/modele.json", "w")
+fmodel.write(model.to_json())
+fmodel.close()
+
 print("Score exactitude : "+str(score))
 print("Nombre d'echantillons d'entrainement : "+str(len(x_train.tolist())))
 print("Nombre d'echantillons de test : "+str(len(x_test.tolist())))
