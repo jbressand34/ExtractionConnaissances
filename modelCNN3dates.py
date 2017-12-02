@@ -7,7 +7,8 @@ import keras
 from keras.layers import Dense, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Sequential
-
+from keras import backend as K
+from sklearn.metrics import precision_score, recall_score, f1_score 
 file = open("../data_4_tp/jeu_entrainement_trois_dates.json","r")
 jeu_entrainement = json.load(file)
 file.close()
@@ -45,8 +46,6 @@ x_train = x_train.reshape(x_train.shape[0], 1, h, 1)
 x_test = x_test.reshape(x_test.shape[0], 1, h, 1)
 mon_shape = (1,h,1)
 
-#print(x_train[0])
-
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 
@@ -62,17 +61,12 @@ max = max1
 if max2 > max1:
 	max = max2
 
-#print("min : "+str(min)+", max : "+str(max))
-
 x_train = (x_train - min)/(max-min)
 x_test = (x_test - min)/(max-min)
 
-#print(x_train[0])
 
 y_train = keras.utils.to_categorical(y_train, 2)
 y_test = keras.utils.to_categorical(y_test, 2)
-
-#print(y_train[0])
 
 model = Sequential()
 
@@ -87,12 +81,13 @@ model.add(Dense(1000, activation='relu'))
 model.add(Dense(2, activation='softmax'))
 #print(model.output_shape)
 
+
 model.compile(loss=keras.losses.categorical_crossentropy,
 	optimizer=keras.optimizers.Adam(),
 	metrics=['accuracy'])#decay=0.001
 
 mon_batch_size = 128
-epo=400
+epo=200
 
 model.fit(x_train, y_train,
 	batch_size=mon_batch_size,
@@ -107,7 +102,6 @@ nbPixelsNonLevees = 0
 predictions_train = model.predict(x_train)
 predictions_test = model.predict(x_test)
 #Nombre de pixels leves : 1119 non leves : 1104
-#Prediction total : 1110 levees, 1112 non levees.
 
 for pred in predictions_train:
 	prediction = 0
@@ -144,3 +138,34 @@ fmodel.close()
 print("Score exactitude : "+str(score))
 print("Nombre d'echantillons d'entrainement : "+str(len(x_train.tolist())))
 print("Nombre d'echantillons de test : "+str(len(x_test.tolist())))
+
+y_train_pred = model.predict(x_train)
+y_train_prediction = [0 if val[0]>val[1] else 1 for val in y_train_pred]
+
+y_test_pred = model.predict(x_test)
+y_test_prediction = [0 if val[0]>val[1] else 1 for val in y_test_pred]
+
+y_train_true = [0 if val[0]>val[1] else 1 for val in y_train]
+
+precision_train = precision_score(y_train_true, \
+	y_train_prediction,pos_label=1,average='binary')
+precision_test = precision_score(y_test_true, \
+	y_test_prediction,pos_label=1,average='binary')
+
+recall_train = recall_score(y_train_true, \
+	y_train_prediction,pos_label=1,average='binary')
+recall_test = recall_score(y_test_true, \
+	y_test_prediction,pos_label=1,average='binary')
+
+f1_train = f1_score(y_train_true, \
+	y_train_prediction,pos_label=1,average='binary')
+f1_test = f1_score(y_test_true, \
+	y_test_prediction,pos_label=1,average='binary')
+
+print("Entrainement, precision:"+str(precision_train)+\
+	", rappel:"+str(recall_train)+\
+	", f"+str(f1_train))
+
+print("Test, precision:"+str(precision_test)+\
+	", rappel:"+str(recall_test)+\
+	", f"+str(f1_test))
