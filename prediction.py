@@ -17,14 +17,6 @@ file = open("../data_4_tp/data_matrix.json","r")
 data = json.load(file)
 file.close()
 
-file = open("../data_4_tp/data_parcelle.json")
-data_parcels = json.load(file)
-file.close()
-
-file = open("../data_4_tp/parcelles_levees.json","r")
-parcelles_date = json.load(file)
-file.close()
-
 file = open("../data_4_tp/jeu_test_trois_dates.json","r")
 jeu_test = json.load(file)
 file.close()
@@ -65,88 +57,6 @@ def compute_ndvi(img):
     return(PIR-R)/(PIR+R)
 
 
-for date in dates[2:]:
-	parcelles_levees = []
-	parcelles_non_levees = []
-
-	for parcelle, date_parcelle in \
-	parcelles_date.items():
-		pixels = data_parcels[parcelle]
-		if int(date)>=int(date_parcelle):
-			parcelles_levees.append(pixels)
-		else:
-			parcelles_non_levees.append(pixels)
-	observations_parcelles[date] = {
-		"levees": parcelles_levees,
-		"non_levees": parcelles_non_levees
-		}
-
-def getDatePrev(date):
-	datePrev = None
-	if date == dates[0]:
-		datePrev = None
-	elif date == dates[1]:
-		datePrev = dates[0]
-	elif date == dates[2]:
-		datePrev = dates[1]
-	elif date == dates[3]:
-		datePrev = dates[2]
-	elif date == dates[4]:
-		datePrev = dates[3]
-	else:
-		print(date)
-		print(date==date[0])
-		raise Exception()
-	return datePrev
-
-
-"""
-Pour la deuxieme figure il nous faut pour chaque date :
-- Une liste de pixel levees 
-- Une liste de pixels non levees
-"""
-
-for date in dates[2:]:
-	pixels_levees = []
-	pixels_non_levees = []
-	date_prev = getDatePrev(date)
-	date_prev_prev = getDatePrev(date_prev)
-	dates_sample = [date,date_prev,date_prev_prev]
-
-	for parcelle in parcelles_date:
-		for pixel in data_parcels[parcelle]:
-			sample = []
-			for d in dates_sample:
-				for i in range(0,10):
-					sample.append([data[d][i][pixel[0]][pixel[1]]])
-			sample = np.array([[sample]])
-			pred = modele.predict(sample)
-			prediction = 0
-			if pred[0][1]>pred[0][0]:
-				prediction = 1		
-			if prediction == 1:
-				pixels_levees.append(pixel)
-			elif prediction == 0:
-				pixels_non_levees.append(pixel)
-			else:
-				raise
-	predictions_pixels[date]={
-		"levees": pixels_levees,
-		"non_levees": pixels_non_levees
-	}
-
-for date in predictions_pixels:
-	print(date+" : ")
-	print("Nombre de pixels levees : "+\
-		str(len(predictions_pixels[date]["levees"])))
-	print("Nombre de pixels non levees : "+\
-		str(len(predictions_pixels[date]["non_levees"])))
-
-
-
-#prediction = np.argsort(model.predict())
-pdf = PdfPages("../data_4_tp/prediction.pdf")
-
 prediction_rouge = {}
 prediction_vert = {}
 test_rouge = {}
@@ -157,67 +67,91 @@ for date in dates[2:]:
 	prediction_rouge[date] = []
 	prediction_vert[date] = []
 
+tcountO = 0
+tcount1 = 0
+
+countO = 0
+count1 = 0
+
+h = 30
+labels = []
+trois_canaux = []
+for i in range(0, len(jeu_test['pixels'])):
+	#label = jeu_test['labels'][i]
+	#labels.append(label)
+	canaux = jeu_test['canaux'][i]
+	trois_canaux.append([[canaux[0] + canaux[1] + canaux[2]]])
+
+trois_canaux = np.array(trois_canaux)
+trois_canaux = trois_canaux.reshape(trois_canaux.shape[0], 1, h, 1)
+
+trois_canaux = trois_canaux.astype('float32')
+
+min = np.min(trois_canaux)
+max = np.max(trois_canaux)
+
+trois_canaux = (trois_canaux - min)/(max-min)
+#print(trois_canaux[0])
+
 for i in range(0, len(jeu_test['pixels'])):
 	pixel = jeu_test['pixels'][i]
 	label = jeu_test['labels'][i]
 	date = jeu_test['dates'][i]
 	canaux = jeu_test['canaux'][i]
 	if label == 1 :
+		tcountO +=1 
 		test_vert[date].append(pixel) 
 	else:
 		test_rouge[date].append(pixel)
+		tcount1 += 1
 
-	p = [[val] for val in canaux[0]]+\
-	[[val] for val in canaux[1]]+\
-	[[val] for val in canaux[2]]
-	pred = modele.predict(np.array([[p]]))
+pred = modele.predict(np.array(trois_canaux))
+
+index = 0
+for p in pred:
 	prediction = 0
-	if pred[0][1] > pred[0][0]:
+	pixel = jeu_test['pixels'][index]
+	date = jeu_test['dates'][index]
+	index += 1
+	if p[0] < p[1]:
 		prediction = 1
 	if prediction == 1:
 		prediction_vert[date].append(pixel)
+		countO += 1
 	else:
 		prediction_rouge[date].append(pixel)
+		count1 += 1
+		
+
+
+#print("tcount 0: " + str(tcountO) +", tcount 1: "+ str(tcount1) )
+#print("pcount 0: " + str(countO) +", pcount 1: "+ str(count1) )
+
+pdf = PdfPages("../data_4_tp/prediction.pdf")
 
 for date in dates[2:]:
-	plt.figure()#figsize=(150,100)
+	plt.figure(figsize=(150,100))
 	plt.subplot(1,2,1)
 	plt.title(date + " observations")
 	plt.imshow(compute_ndvi(data["20160806"]),cmap="gray")
-	"""
-	for pixels in observations_parcelles[date]["levees"]:  
-		p = np.array(pixels)
-		plt.scatter(p[:,0],p[:,1],c='green')
-	for pixels in observations_parcelles[date]["non_levees"]:	
-		p = np.array(pixels)
-		plt.scatter(p[:,0],p[:,1],c='red')
-	"""
+
 	if len(test_vert[date])>0:
 		p = np.array(test_vert[date])
 		plt.scatter(p[:,0],p[:,1],c='green')
 	if len(test_rouge[date])>0:
 		p = np.array(test_rouge[date])
 		plt.scatter(p[:,0],p[:,1],c='red')
-
+	
 	plt.subplot(1,2,2)
 	plt.title(date + " predictions")
 	plt.imshow(compute_ndvi(data["20160806"]),cmap="gray")
-	"""
-	if len(predictions_pixels[date]["levees"])>0:  
-		p = np.array(predictions_pixels[date]["levees"])
-		#print(p.shape)
-		plt.scatter(p[:,0],p[:,1],c='green')
-	if len(predictions_pixels[date]["non_levees"])>0:
-		p = np.array(predictions_pixels[date]["non_levees"])
-		#print(p.shape)
-		plt.scatter(p[:,0],p[:,1],c='red')
-	"""
+
 	if len(prediction_vert[date])>0:
 		p = np.array(prediction_vert[date])
 		plt.scatter(p[:,0],p[:,1],c='green')
 	if len(prediction_rouge[date])>0:
 		p = np.array(prediction_rouge[date])
 		plt.scatter(p[:,0],p[:,1],c='red')
-	plt.show()
-	#pdf.savefig()
+	#plt.show()
+	pdf.savefig()
 pdf.close()
