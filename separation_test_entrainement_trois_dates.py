@@ -3,19 +3,24 @@ import json
 import numpy as np
 import random
 
-file = open("../data_4_tp/pixel_objet_leve_splite.json", "r")
+file_config = open("config.json", "r")
+config = json.load(file_config)
+file_config.close()
+path = config["pathToDataDirectory"]
+
+file = open("path/pixel_objet_leve_splite.json", "r")
 objets_leves_pixels = json.load(file)
 file.close()
 
-file = open("../data_4_tp/pixel_objet_non_leve_splite.json", "r")
+file = open("path/pixel_objet_non_leve_splite.json", "r")
 objets_non_leves_pixels = json.load(file)
 file.close()
 
 
-file = open("../data_4_tp/objets_splites_leves_trois_dates.json","r")
+file = open("path/objets_splites_leves_trois_dates.json","r")
 objets_leves_canaux = json.load(file)
 file.close()
-file = open("../data_4_tp/objets_splites_non_leves_trois_dates.json","r")
+file = open("path/objets_splites_non_leves_trois_dates.json","r")
 objets_non_leves_canaux = json.load(file)
 file.close()
 
@@ -44,6 +49,7 @@ Structure des fichiers :
 jeu_entrainement = {
 	"pixels": [],
 	"labels": [],
+	"dates": [],
 	"canaux": []
 }
 
@@ -101,9 +107,11 @@ for shuffle_sample in shuffle_entrainement:
 	pixel = shuffle_sample[0]
 	label = shuffle_sample[1]
 	canaux = shuffle_sample[2]
+	date = shuffle_sample[3]
 	jeu_entrainement["pixels"].append(pixel)
 	jeu_entrainement["labels"].append(label)
 	jeu_entrainement["canaux"].append(canaux)
+	jeu_entrainement["dates"].append(date)
 
 for shuffle_sample in shuffle_test:
 	pixel = shuffle_sample[0]
@@ -116,10 +124,10 @@ for shuffle_sample in shuffle_test:
 	jeu_test["dates"].append(date)
 
 
-file = open("../data_4_tp/jeu_entrainement_trois_dates.json","w")
+file = open("path/jeu_entrainement_trois_dates.json","w")
 json.dump(jeu_entrainement,file)
 file.close()
 
-file = open("../data_4_tp/jeu_test_trois_dates.json","w")
+file = open("path/jeu_test_trois_dates.json","w")
 json.dump(jeu_test,file)
 file.close()

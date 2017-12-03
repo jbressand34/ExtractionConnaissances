@@ -8,21 +8,30 @@ from operator import itemgetter
 import operator
 import time
 
+#print("\nCréation de deux fichiers json qui contiennent les objets splités levés et non levés.")
+
 """
 Permets de construire les fichiers :
 pixel_objet_leve_splite.json
 pixel_objet_non_leve_splite.json
 """
 
-file_objet = open("../data_4_tp/data_segmentation_objet.json", "r")
+file_config = open("config.json", "r")
+config = json.load(file_config)
+file_config.close()
+
+config_represantativite = config["represantativite"]
+path = config["pathToDataDirectory"]
+
+file_objet = open("path/data_segmentation_objet.json", "r")
 objets_pixels = json.load(file_objet)
 file_objet.close()
 
-file = open("../data_4_tp/data_parcelle.json", "r")
+file = open("path/data_parcelle.json", "r")
 parcelles_pixels = json.load(file)
 file.close()
 
-file = open("../data_4_tp/parcelles_levees.json", "r")
+file = open("path/parcelles_levees.json", "r")
 parcelles_dates_levees = json.load(file)
 file.close()
 
@@ -47,12 +56,6 @@ l_min = np.min(array_pixel[:,0])
 l_max = np.max(array_pixel[:,0])
 c_min = np.min(array_pixel[:,1])
 c_max = np.max(array_pixel[:,1])
-"""
-print(l_min)
-print(l_max)
-print(c_min)
-print(c_max)
-"""
 
 for nl in range(l_min,l_max+1):
 	for nc in range(c_min,c_max+1):
@@ -76,13 +79,6 @@ for nl in range(l_min,l_max+1):
 
 print("Nombre de pixels leves dans les parcelles : "+str(len(pixels_parcelles_leves)))	
 print("Nombre de pixels non leves dans les parcelles : "+str(len(pixels_parcelles_non_leves)))				
-
-communs = []
-for tab in pixels_parcelles_non_leves:
-	if tab in pixels_parcelles_leves:
-		communs.append(tab)
-
-print(communs)
 
 """
 On determine quels sont les objets leves et non leves
@@ -150,27 +146,35 @@ for date, objs in objets_pixels.items():
 			test = nbl/(nbl+nbnl)
 			if test >= support:
 				liste_pixels = liste_pixel_leves + liste_pixel_unknown
-				if representativite_levee != None and representativite_levee > represantativite:
+				if config_represantativite:
+					if representativite_levee != None and representativite_levee > represantativite:
+						objets_leves[date+" "+obj] = pd.Series(liste_pixels).to_json(orient='values')
+				else:
 					objets_leves[date+" "+obj] = pd.Series(liste_pixels).to_json(orient='values')
+							
 			elif (1-test) >= support:
 				liste_pixels = liste_pixel_non_leves + liste_pixel_unknown
-				if representativite_non_levee != None and representativite_non_levee > represantativite:
+				if config_represantativite:
+					if representativite_non_levee != None and representativite_non_levee > represantativite:
+						objets_non_leves[date+" "+obj] = pd.Series(liste_pixels).to_json(orient='values')
+				else:
 					objets_non_leves[date+" "+obj] = pd.Series(liste_pixels).to_json(orient='values')
-
+							
+"""
 print("Nombre d'objet splite leves : "+str(len(list(objets_leves.keys()))))	
 print("Nombre d'objet splite non leves : "+str(len(list(objets_non_leves.keys()))))
-
+"""
 pixels_leves = [val for obj, t in objets_leves.items() for val in json.loads(t)]
 pixels_non_leves = [val for obj, t in objets_non_leves.items() for val in json.loads(t)]
-
+"""
 print("Nombre final de pixels leves : "+str(len(pixels_leves)))	
 print("Nombre final de pixels non leves : "+str(len(pixels_non_leves)))
+"""
 
-
-file = open("../data_4_tp/pixel_objet_leve_splite.json", "w")
+file = open("path/pixel_objet_leve_splite.json", "w")
 json.dump(objets_leves,file)
 file.close()
 
-file = open("../data_4_tp/pixel_objet_non_leve_splite.json", "w")
+file = open("path/pixel_objet_non_leve_splite.json", "w")
 json.dump(objets_non_leves,file)
 file.close()

@@ -8,15 +8,21 @@ from operator import itemgetter
 import operator
 import time
 
-file = open("../data_4_tp/data_matrix.json","r")
+#print("\nCréation de deux fichiers json qui contiennent les objets splités levés et non levés pour deux dates.")
+file_config = open("config.json", "r")
+config = json.load(file_config)
+file_config.close()
+path = config["pathToDataDirectory"]
+
+file = open("path/data_matrix.json","r")
 data = json.load(file)
 file.close()
 
-file = open("../data_4_tp/pixel_objet_leve_splite.json", "r")
+file = open("path/pixel_objet_leve_splite.json", "r")
 pixel_obj_leve_splite = json.load(file)
 file.close()
 
-file = open("../data_4_tp/pixel_objet_non_leve_splite.json", "r")
+file = open("path/pixel_objet_non_leve_splite.json", "r")
 pixel_obj_non_leve_splite = json.load(file)
 file.close()
 
@@ -84,16 +90,6 @@ for obj, pixels in pixel_obj_non_leve_splite.items():
 			if datePrev != None:
 				signal_prev = data[datePrev][numsignal][pixel[0]][pixel[1]]
 				signaux_prev.append(signal_prev)
-			"""
-			else :
-				signaux_prev.append(0)
-
-			if datePrevPrev != None:
-				signal_prev_prev = data[datePrevPrev][numsignal][pixel[0]][pixel[1]]
-				signaux_prev_prev.append(signal_prev)
-			else:
-				signaux_prev_prev.append(0)
-			"""	
 		matrice.append(signaux)
 		matrice_prev.append(signaux_prev)
 	if len(signaux_prev)>0:
@@ -126,9 +122,9 @@ for objet, val1 in objets_non_levees_dump.items():
 print("Nombre de pixels leves : "+str(len(pixels_leves)))
 print("Nombre de pixels non leves : "+str(len(pixels_non_leves)))
 
-file = open("../data_4_tp/objets_splites_leves_deux_dates.json","w")
+file = open("path/objets_splites_leves_deux_dates.json","w")
 json.dump(objets_levees_dump,file, indent=True)
 file.close()
-file = open("../data_4_tp/objets_splites_non_leves_deux_dates.json","w")
+file = open("path/objets_splites_non_leves_deux_dates.json","w")
 json.dump(objets_non_levees_dump,file, indent=True)
 file.close()

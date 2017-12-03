@@ -6,18 +6,22 @@ import keras
 from keras.models import model_from_json
 from matplotlib.backends.backend_pdf import PdfPages
 
+file_config = open("config.json", "r")
+config = json.load(file_config)
+file_config.close()
+path = config["pathToDataDirectory"]
 
-json_modele = open("../data_4_tp/modele.json", "r")
+json_modele = open("path/modele.json", "r")
 modele = model_from_json(json_modele.readline())
 json_modele.close()
-modele.load_weights('../data_4_tp/modele_poids.h5')
+modele.load_weights('path/modele_poids.h5')
 
 	
-file = open("../data_4_tp/data_matrix.json","r")
+file = open("path/data_matrix.json","r")
 data = json.load(file)
 file.close()
 
-file = open("../data_4_tp/jeu_test_trois_dates.json","r")
+file = open("path/jeu_test_trois_dates.json","r")
 jeu_test = json.load(file)
 file.close()
 
@@ -67,20 +71,27 @@ for date in dates[2:]:
 	prediction_rouge[date] = []
 	prediction_vert[date] = []
 
-tcountO = 0
-tcount1 = 0
 
-countO = 0
-count1 = 0
+h = 10 * int(config["tailleSequenceInputModele"])
+if h > 30:
+	raise Exeption("0 < tailleSequenceInputModele <= 3")
 
-h = 30
+
 labels = []
 trois_canaux = []
 for i in range(0, len(jeu_test['pixels'])):
 	#label = jeu_test['labels'][i]
 	#labels.append(label)
 	canaux = jeu_test['canaux'][i]
-	trois_canaux.append([[canaux[0] + canaux[1] + canaux[2]]])
+	if h == 30:
+		trois_canaux.append([[canaux[0] + canaux[1] + canaux[2]]])
+	elif h == 20:
+		trois_canaux.append([[canaux[0] + canaux[1]]])
+	elif h == 10:
+		trois_canaux.append([[canaux[0]]])
+	else :
+		raise Exeption("0 < tailleSequenceInputModele <= 3")	
+
 
 trois_canaux = np.array(trois_canaux)
 trois_canaux = trois_canaux.reshape(trois_canaux.shape[0], 1, h, 1)
@@ -99,11 +110,9 @@ for i in range(0, len(jeu_test['pixels'])):
 	date = jeu_test['dates'][i]
 	canaux = jeu_test['canaux'][i]
 	if label == 1 :
-		tcountO +=1 
 		test_vert[date].append(pixel) 
 	else:
 		test_rouge[date].append(pixel)
-		tcount1 += 1
 
 pred = modele.predict(np.array(trois_canaux))
 
@@ -117,20 +126,14 @@ for p in pred:
 		prediction = 1
 	if prediction == 1:
 		prediction_vert[date].append(pixel)
-		countO += 1
 	else:
 		prediction_rouge[date].append(pixel)
-		count1 += 1
 		
 
-
-#print("tcount 0: " + str(tcountO) +", tcount 1: "+ str(tcount1) )
-#print("pcount 0: " + str(countO) +", pcount 1: "+ str(count1) )
-
-pdf = PdfPages("../data_4_tp/prediction.pdf")
+#pdf = PdfPages("path/prediction.pdf")
 
 for date in dates[2:]:
-	plt.figure(figsize=(150,100))
+	plt.figure()#figsize=(150,100)
 	plt.subplot(1,2,1)
 	plt.title(date + " observations")
 	plt.imshow(compute_ndvi(data["20160806"]),cmap="gray")
@@ -152,6 +155,6 @@ for date in dates[2:]:
 	if len(prediction_rouge[date])>0:
 		p = np.array(prediction_rouge[date])
 		plt.scatter(p[:,0],p[:,1],c='red')
-	#plt.show()
-	pdf.savefig()
-pdf.close()
+	plt.show()
+	#pdf.savefig()
+#pdf.close()
