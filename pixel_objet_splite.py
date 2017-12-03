@@ -23,15 +23,15 @@ file_config.close()
 config_represantativite = config["represantativite"]
 path = config["pathToDataDirectory"]
 
-file_objet = open("path/data_segmentation_objet.json", "r")
+file_objet = open(path+"data_segmentation_objet.json", "r")
 objets_pixels = json.load(file_objet)
 file_objet.close()
 
-file = open("path/data_parcelle.json", "r")
+file = open(path+"data_parcelle.json", "r")
 parcelles_pixels = json.load(file)
 file.close()
 
-file = open("path/parcelles_levees.json", "r")
+file = open(path+"parcelles_levees.json", "r")
 parcelles_dates_levees = json.load(file)
 file.close()
 
@@ -166,15 +166,15 @@ print("Nombre d'objet splite non leves : "+str(len(list(objets_non_leves.keys())
 """
 pixels_leves = [val for obj, t in objets_leves.items() for val in json.loads(t)]
 pixels_non_leves = [val for obj, t in objets_non_leves.items() for val in json.loads(t)]
-"""
+
 print("Nombre final de pixels leves : "+str(len(pixels_leves)))	
 print("Nombre final de pixels non leves : "+str(len(pixels_non_leves)))
-"""
 
-file = open("path/pixel_objet_leve_splite.json", "w")
+
+file = open(path+"pixel_objet_leve_splite.json", "w")
 json.dump(objets_leves,file)
 file.close()
 
-file = open("path/pixel_objet_non_leve_splite.json", "w")
+file = open(path+"pixel_objet_non_leve_splite.json", "w")
 json.dump(objets_non_leves,file)
 file.close()

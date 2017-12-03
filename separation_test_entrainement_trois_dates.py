@@ -8,19 +8,19 @@ config = json.load(file_config)
 file_config.close()
 path = config["pathToDataDirectory"]
 
-file = open("path/pixel_objet_leve_splite.json", "r")
+file = open(path+"pixel_objet_leve_splite.json", "r")
 objets_leves_pixels = json.load(file)
 file.close()
 
-file = open("path/pixel_objet_non_leve_splite.json", "r")
+file = open(path+"pixel_objet_non_leve_splite.json", "r")
 objets_non_leves_pixels = json.load(file)
 file.close()
 
 
-file = open("path/objets_splites_leves_trois_dates.json","r")
+file = open(path+"objets_splites_leves_trois_dates.json","r")
 objets_leves_canaux = json.load(file)
 file.close()
-file = open("path/objets_splites_non_leves_trois_dates.json","r")
+file = open(path+"objets_splites_non_leves_trois_dates.json","r")
 objets_non_leves_canaux = json.load(file)
 file.close()
 
@@ -124,10 +124,10 @@ for shuffle_sample in shuffle_test:
 	jeu_test["dates"].append(date)
 
 
-file = open("path/jeu_entrainement_trois_dates.json","w")
+file = open(path+"jeu_entrainement_trois_dates.json","w")
 json.dump(jeu_entrainement,file)
 file.close()
 
-file = open("path/jeu_test_trois_dates.json","w")
+file = open(path+"jeu_test_trois_dates.json","w")
 json.dump(jeu_test,file)
 file.close()

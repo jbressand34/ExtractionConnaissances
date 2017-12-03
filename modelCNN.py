@@ -10,18 +10,19 @@ from keras.models import Sequential
 from keras import backend as K
 from sklearn.metrics import precision_score, recall_score, f1_score 
 import sys
-	
-file = open("../data_4_tp/jeu_entrainement_trois_dates.json","r")
-jeu_entrainement = json.load(file)
-file.close()
-
-file = open("../data_4_tp/jeu_test_trois_dates.json","r")
-jeu_test = json.load(file)
-file.close()
 
 file_config = open("config.json", "r")
 config = json.load(file_config)
 file_config.close()
+path = config["pathToDataDirectory"]
+	
+file = open(path+"jeu_entrainement_trois_dates.json","r")
+jeu_entrainement = json.load(file)
+file.close()
+
+file = open(path+"jeu_test_trois_dates.json","r")
+jeu_test = json.load(file)
+file.close()
 
 x_train = [] #nbPixel * 10
 x_test = []
@@ -154,8 +155,8 @@ for i in range(0,10):
 	print(pr)
 """
 score = model.evaluate(x_test,y_test,verbose=0)
-model.save_weights('../data_4_tp/modele_poids.h5')
-fmodel = open("../data_4_tp/modele.json", "w")
+model.save_weights(path+'modele_poids.h5')
+fmodel = open(path+"modele.json", "w")
 fmodel.write(model.to_json())
 fmodel.close()
 
@@ -204,5 +205,6 @@ print("Test, precision:"+str(precision_test)+\
 	", rappel:"+str(recall_test)+\
 	", fmesure:"+str(f1_test))
 
-file = open("../data_4_tp/performancesModele.txt","a")
+file = open(path+"performancesModele.txt","a")
 file.write(resEntrainement + resTest)
+file.close()

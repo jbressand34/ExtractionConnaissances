@@ -16,12 +16,12 @@ def pretraitement():
 
 
 def modele():
-	if os.path.isfile("path/performancesModele.txt"):
-		os.system("rm path/performancesModele.txt")
+	if os.path.isfile(path+"performancesModele.txt"):
+		os.system("rm "+ path+"performancesModele.txt")
 
 	for i in range(0,3):
 		os.system("python modelCNN.py")
-	file = open("path/performancesModele.txt", "r")
+	file = open(path+"performancesModele.txt", "r")
 	tabPrecisionE = []
 	tabRappelE = []
 	tabFmesureE = []
@@ -45,7 +45,7 @@ def modele():
 			tabFmesureT.append(fmesure)
 	file.close()
 
-	file = open("path/performancesModele.txt", "a")
+	file = open(path+"performancesModele.txt", "a")
 	moyPrecisionE = np.mean(np.array(tabPrecisionE))
 	moyPrecisionT = np.mean(np.array(tabPrecisionT))
 	moyRappelE = np.mean(np.array(tabRappelE))

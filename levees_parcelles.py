@@ -12,11 +12,11 @@ path = config["pathToDataDirectory"]
 
 levees = {}
 
-file1 = pd.read_csv("path/14072016_observations.csv")
-file2 = pd.read_csv("path/28092016_observations.csv")
-file3 = pd.read_csv("path/03112016_observations.csv")
-file4 = pd.read_csv("path/21112016_observations.csv")
-file5 = pd.read_csv("path/02122016_observations.csv")
+file1 = pd.read_csv(path+"14072016_observations.csv")
+file2 = pd.read_csv(path+"28092016_observations.csv")
+file3 = pd.read_csv(path+"03112016_observations.csv")
+file4 = pd.read_csv(path+"21112016_observations.csv")
+file5 = pd.read_csv(path+"02122016_observations.csv")
 
 for id, row in file1.iterrows():
     if("croissance" in row["Culture"] and row["CODE_2016_"] not in levees):
@@ -34,6 +34,6 @@ for id, row in file5.iterrows():
     if("croissance" in row["Culture"] and row["CODE_2016_"] not in levees):
         levees[row["CODE_2016_"]]="20161202"
 
-file = open("path/parcelles_levees.json","w")
+file = open(path+"parcelles_levees.json","w")
 json.dump(levees, file, indent=1)
 file.close()

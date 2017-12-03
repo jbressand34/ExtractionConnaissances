@@ -11,17 +11,17 @@ config = json.load(file_config)
 file_config.close()
 path = config["pathToDataDirectory"]
 
-json_modele = open("path/modele.json", "r")
+json_modele = open(path+"modele.json", "r")
 modele = model_from_json(json_modele.readline())
 json_modele.close()
-modele.load_weights('path/modele_poids.h5')
+modele.load_weights(path+'modele_poids.h5')
 
 	
-file = open("path/data_matrix.json","r")
+file = open(path+"data_matrix.json","r")
 data = json.load(file)
 file.close()
 
-file = open("path/jeu_test_trois_dates.json","r")
+file = open(path+"jeu_test_trois_dates.json","r")
 jeu_test = json.load(file)
 file.close()
 
@@ -130,7 +130,7 @@ for p in pred:
 		prediction_rouge[date].append(pixel)
 		
 
-#pdf = PdfPages("path/prediction.pdf")
+#pdf = PdfPages(path+"prediction.pdf")
 
 for date in dates[2:]:
 	plt.figure()#figsize=(150,100)

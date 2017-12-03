@@ -1,8 +1,8 @@
 {
-	"pretraitementDejaFait": true,
+	"pretraitementDejaFait": false,
 	"represantativite": false,
-	"nombreEpoquesEntrainement": 200,
-	"nombreCouches": 2,
+	"nombreEpoquesEntrainement": 1,
+	"nombreCouches": 1,
 	"nombreNoeudFullyConnected" : 1000,
 	"tailleSequenceInputModele": 2,
 	"visualisationPrediction" : false,

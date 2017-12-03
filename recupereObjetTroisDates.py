@@ -15,15 +15,15 @@ config = json.load(file_config)
 file_config.close()
 path = config["pathToDataDirectory"]
 
-file = open("path/data_matrix.json","r")
+file = open(path+"data_matrix.json","r")
 data = json.load(file)
 file.close()
 
-file = open("path/pixel_objet_leve_splite.json", "r")
+file = open(path+"pixel_objet_leve_splite.json", "r")
 pixel_obj_leve_splite = json.load(file)
 file.close()
 
-file = open("path/pixel_objet_non_leve_splite.json", "r")
+file = open(path+"pixel_objet_non_leve_splite.json", "r")
 pixel_obj_non_leve_splite = json.load(file)
 file.close()
 
@@ -141,9 +141,9 @@ for objet, val1 in objets_non_levees_dump.items():
 print("Nombre de pixels leves : "+str(len(pixels_leves)))
 print("Nombre de pixels non leves : "+str(len(pixels_non_leves)))
 """
-file = open("path/objets_splites_leves_trois_dates.json","w")
+file = open(path+"objets_splites_leves_trois_dates.json","w")
 json.dump(objets_levees_dump,file, indent=True)
 file.close()
-file = open("path/objets_splites_non_leves_trois_dates.json","w")
+file = open(path+"objets_splites_non_leves_trois_dates.json","w")
 json.dump(objets_non_levees_dump,file, indent=True)
 file.close()
