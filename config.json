@@ -1,10 +1,10 @@
 {
 	"pretraitementDejaFait": false,
-	"represantativite": false,
-	"nombreEpoquesEntrainement": 1,
-	"nombreCouches": 1,
+	"represantativite": true,
+	"nombreEpoquesEntrainement": 100,
+	"nombreCouches": 2,
 	"nombreNoeudFullyConnected" : 1000,
-	"tailleSequenceInputModele": 2,
+	"tailleSequenceInputModele": 3,
 	"visualisationPrediction" : false,
 	"pathToDataDirectory" : "../data_4_tp/"
 }

@@ -19,7 +19,7 @@ def modele():
 	if os.path.isfile(path+"performancesModele.txt"):
 		os.system("rm "+ path+"performancesModele.txt")
 
-	for i in range(0,3):
+	for i in range(0,1):
 		os.system("python modelCNN.py")
 	file = open(path+"performancesModele.txt", "r")
 	tabPrecisionE = []
